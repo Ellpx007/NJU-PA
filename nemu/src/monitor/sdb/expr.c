@@ -128,15 +128,15 @@ static bool make_token(char *e) {
     }
   }
 
-  for(int i=0; i<nr_token; i++)
+  // printf测试正则表达式
+  /*for(int i=0; i<nr_token; i++)
   {
     printf("tokens[%d]: type = %d , str = \"%s\"\n" , i , tokens[i].type , tokens[i].str);
   }
-  
+  */
 
   return true;
 }
-
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -145,7 +145,7 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
- // TODO();
+  TODO();
 
   return 0;
 }
