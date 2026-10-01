@@ -45,7 +45,7 @@ static struct rule {
   {"==", TK_EQ},        // equal
   {"\\+", '+'},         // plus
   {"-" , '-'},          // sub
-  {"[0-9]+", TK_INT}
+  {"[0-9+", TK_INT}
 };
 
 #define NR_REGEX ARRLEN(rules)
