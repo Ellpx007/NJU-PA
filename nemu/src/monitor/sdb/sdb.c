@@ -193,7 +193,7 @@ void init_sdb() {
   init_regex();
 
   bool success = true;
-  expr("1 + 2", &success);
+  expr("(1 * 2/ 100) + 2 - 1", &success);
 
   /* Initialize the watchpoint pool. */
   init_wp_pool();
