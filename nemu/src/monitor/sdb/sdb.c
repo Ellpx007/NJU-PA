@@ -19,6 +19,8 @@
 #include <readline/history.h>
 #include "sdb.h"
 
+#include <memory/paddr.h>
+
 static int is_batch_mode = false;
 
 void init_regex();
@@ -55,6 +57,55 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args){
+  int n;
+  if(args == NULL){
+    n = 1;
+  }
+  else{
+    sscanf(args, "%d", &n);
+  }
+  cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args){
+  char subcmd;
+  if (args == NULL)
+  {return 0;}
+  else 
+   {sscanf(args, "%s", &subcmd);}
+
+   if(subcmd == 'r')
+   {isa_reg_display();}
+   else if(subcmd == 'w')
+   {}
+   else
+  {return 0;}
+
+   return 0;
+}
+
+static int cmd_x(char *args){
+  //strtok分割字符串
+  char *str_n = strtok(args," ");
+  char *str_expr = strtok(NULL," ");
+  //调试接受到的字符对不对
+  //printf("str_n = %s, str_expr = %s\n", str_n, str_expr);
+  int n=0;
+  paddr_t addr;
+  sscanf(str_n , "%d", &n);
+  sscanf(str_expr, "%x", &addr);
+  for(int i=0; i< n; i++){
+    word_t val = paddr_read(addr , 4);
+    printf("0x%08x:  0x%08x\n", addr, val);
+    addr += 4;
+  }
+  //printf("n = %d, addr = 0x%08x\n", n, addr);
+
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -63,7 +114,9 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
+  { "si" , "Execute n instructions", cmd_si},
+  { "info", "Print Regester", cmd_info},
+  { "x","scan Memory", cmd_x},
   /* TODO: Add more commands */
 
 };
