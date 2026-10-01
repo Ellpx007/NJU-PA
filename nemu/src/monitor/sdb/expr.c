@@ -110,8 +110,8 @@ static bool make_token(char *e) {
           case '(': tokens[i].type = '('; break;
           case ')': tokens[i].type = ')'; break;
 
-          default: //TODO();
-          return 0 ;
+          default:  return 0;
+          //TODO();
         }
 
         break;
