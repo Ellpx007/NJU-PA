@@ -77,8 +77,7 @@ static int cmd_info(char *args){
    {sscanf(args, "%s", &subcmd);}
 
    if(subcmd == 'r')
-   {//isa_reg_display();}
-   }
+   {isa_reg_display();}
    else if(subcmd == 'w')
    {}
    else

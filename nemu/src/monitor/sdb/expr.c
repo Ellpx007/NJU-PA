@@ -36,8 +36,8 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
   {" +", TK_NOTYPE},    // spaces
-  {"(" , '('},
-  {")" , ')'},
+  {"\\(" , '('},
+  {"\\)" , ')'},
   {"\\*" , '*'},        // mul
   {"/" , '/'},          // div
   {"==", TK_EQ},        // equal
