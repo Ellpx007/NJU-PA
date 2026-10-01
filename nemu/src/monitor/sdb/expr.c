@@ -110,8 +110,7 @@ static bool make_token(char *e) {
           case '(': tokens[i].type = '('; break;
           case ')': tokens[i].type = ')'; break;
 
-          default:  return 0;
-          //TODO();
+          default: TODO();
         }
 
         break;
@@ -141,7 +140,7 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+ // TODO();
 
   return 0;
 }
