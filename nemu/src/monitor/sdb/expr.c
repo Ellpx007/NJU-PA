@@ -104,7 +104,7 @@ static bool make_token(char *e) {
           case TK_EQ: break;
           case TK_INT: {
               tokens[nr_token].type = TK_INT ; 
-              strncpy(tokens[nr_token].str, e + position ,substr_len);
+              strncpy(tokens[nr_token].str, e + position - substr_len , substr_len);
               tokens[nr_token].str[substr_len] = '\0';
               nr_token++;
               break;}
