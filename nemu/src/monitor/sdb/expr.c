@@ -35,8 +35,6 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-
- 
   {" +", TK_NOTYPE},    // spaces
   {"(" , '('},
   {")" , ')'},
@@ -102,6 +100,16 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
+          case TK_EQ:
+          case TK_INT: tokens[i].type = TK_INT, sscanf(rules->regex , "%d", (int *)tokens->str); break;
+          case TK_NOTYPE:
+          case '+': tokens[i].type = '+'; break;
+          case '-': tokens[i].type = '-'; break;
+          case '*': tokens[i].type = '*'; break;
+          case '/': tokens[i].type = '/'; break;
+          case '(': tokens[i].type = '('; break;
+          case ')': tokens[i].type = ')'; break;
+
           default: TODO();
         }
 
@@ -115,6 +123,10 @@ static bool make_token(char *e) {
     }
   }
 
+  for(int i=0; i<nr_token; i++)
+  {
+    printf("tokens[%d]: type = %d , str = \"%s\"\n" , i , tokens[i].type , tokens[i].str);
+  }
   return true;
 }
 
