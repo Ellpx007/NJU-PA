@@ -165,12 +165,20 @@ static __attribute__((unused)) bool check_parentthese(int p , int q){
     return false;
   }
   int depth = 0;
-  for(int i = p; i <q ; i++){
-    depth++;
-    return depth;
+  for(int i = p; i < q ; i++){
+    if(tokens[i].type == '('){
+      depth++;
+    }
+    else if(tokens[i].type == ')')
+    {
+      depth--;
+    }
+    if(depth == 0){
+      return false;
+    }
   }
 
-  return 0;
+  return depth == 1;
 }
 
 word_t expr(char *e, bool *success) {
