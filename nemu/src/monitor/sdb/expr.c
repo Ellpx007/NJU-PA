@@ -138,7 +138,7 @@ static bool make_token(char *e) {
   return true;
 }
 
-static __attribute__((unused)) bool check_parentthese(int p , int q){
+static bool check_parentthese(int p , int q){
   if(tokens[p].type != '(' || tokens[q - 1].type != ')'){
     return false;
   }
@@ -159,7 +159,7 @@ static __attribute__((unused)) bool check_parentthese(int p , int q){
   return depth == 1;
 }
 
-static __attribute__((unused)) word_t eval(int p , int q){
+static word_t eval(int p , int q){
   if(p > q) {
     printf("This is wrong!");
     assert(0);
