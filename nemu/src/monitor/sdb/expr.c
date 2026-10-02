@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ, TK_INT
 
   /* TODO: Add more token types */
 
@@ -35,10 +35,15 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-
   {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
+  {"\\(" , '('},
+  {"\\)" , ')'},
+  {"\\*" , '*'},        // mul
+  {"/" , '/'},          // div
   {"==", TK_EQ},        // equal
+  {"\\+", '+'},         // plus
+  {"-" , '-'},          // sub
+  {"[0-9]+", TK_INT}    // int
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -95,6 +100,21 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
+          case TK_NOTYPE: break;
+          case TK_EQ:  tokens[nr_token].type = TK_EQ ; nr_token++; break;
+          case TK_INT: {
+              tokens[nr_token].type = TK_INT ; 
+              strncpy(tokens[nr_token].str, e + position - substr_len , substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+              break;}
+          case '+': tokens[nr_token].type = '+'; nr_token++; break;
+          case '-': tokens[nr_token].type = '-'; nr_token++; break;
+          case '*': tokens[nr_token].type = '*'; nr_token++; break;
+          case '/': tokens[nr_token].type = '/'; nr_token++; break;
+          case '(': tokens[nr_token].type = '('; nr_token++; break;
+          case ')': tokens[nr_token].type = ')'; nr_token++; break;
+
           default: TODO();
         }
 
@@ -108,18 +128,118 @@ static bool make_token(char *e) {
     }
   }
 
+  // printf测试正则表达式
+  /*for(int i=0; i<nr_token; i++)
+  {
+    printf("tokens[%d]: type = %d , str = \"%s\"\n" , i , tokens[i].type , tokens[i].str);
+  }
+  */
+
   return true;
 }
 
+static bool check_parentthese(int p , int q){ //去除括号
+  if(tokens[p].type != '(' || tokens[q].type != ')'){
+    return false;
+  }
+  int depth = 0;
+  for(int i = p; i < q ; i++){
+    if(tokens[i].type == '('){
+      depth++;
+    }
+    else if(tokens[i].type == ')')
+    {
+      depth--;
+    }
+    if(depth == 0){
+      return false;
+    }
+  }
+
+  return depth == 1;
+}
+
+static int get_priority(int type){
+  switch(type){
+    case '+' :
+    case '-' :
+    return 1;
+    case '*' :
+    case '/' :
+    return 2;
+    default :
+    //printf("Unexpected token type in get_priority: %d\n", type);
+    return -1;
+  }
+}
+
+static int find_main_op(int p , int q){
+  int op = -1;
+  int l_priority = 3;
+  int depth = 0;
+
+  for(int i = p; i < q; i++){
+    if(tokens[i].type == '('){
+      depth++;
+    }
+
+    else if(tokens[i].type == ')'){
+      depth--;
+    }
+
+    else if(depth == 0){
+      int priority = get_priority(tokens[i].type);
+      if(priority == -1){
+        continue;
+      }
+      if(priority <= l_priority){
+        l_priority = priority;
+        op = i;
+      }
+    }
+  } 
+  return op;
+}
+static word_t eval(int p , int q){ //计算表达式的值，p->开始的token，q->结束的token
+  if(p > q) {
+    printf("This is wrong!");
+    assert(0);
+    return 0;
+  }
+
+  else if(p == q){ 
+    assert(tokens[p].type == TK_INT);
+    return strtoul(tokens[p].str, NULL, 0);
+  }
+
+  else if(check_parentthese(p , q) == true ){ //去除表达式中的括号
+    return eval(p + 1 , q - 1);
+  } 
+
+  else {
+    int op = find_main_op(p , q);
+    assert(op != -1);
+    word_t val1 = eval(p , op - 1);
+    word_t val2 = eval(op + 1 , q);
+
+    switch(tokens[op].type){  
+      case '+': return val1 + val2;
+      case '-': return val1 - val2;
+      case '*': return val1 * val2;
+      case '/': return val1 / val2;
+      default: 
+      assert(0);
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  //TODO();
 
-  return 0;
-}
+  return eval(0, nr_token - 1);
+} 

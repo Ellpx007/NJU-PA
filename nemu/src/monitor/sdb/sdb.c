@@ -192,6 +192,14 @@ void init_sdb() {
   /* Compile the regular expressions. */
   init_regex();
 
+  //测试正则表达式解析
+  //bool success = true;
+  //expr("(1 * 2/ 100) + 2 - 1", &success);
+
   /* Initialize the watchpoint pool. */
+  bool success = true;
+  word_t res = expr("(6 / (2 + 4) + 22 * (3 - 1))", &success);
+  printf("expr(\"42\") = %u, success = %d\n", res, success);
+
   init_wp_pool();
 }
