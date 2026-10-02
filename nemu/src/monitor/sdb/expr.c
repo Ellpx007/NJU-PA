@@ -138,7 +138,7 @@ static bool make_token(char *e) {
   return true;
 }
 
-static bool check_parentthese(int p , int q){
+static bool check_parentthese(int p , int q){ //去除括号
   if(tokens[p].type != '(' || tokens[q].type != ')'){
     return false;
   }
@@ -159,24 +159,69 @@ static bool check_parentthese(int p , int q){
   return depth == 1;
 }
 
-static word_t eval(int p , int q){
+static int get_priority(int type){
+  switch(type){
+    case '+' :
+    case '-' :
+    return 1;
+    case '*' :
+    case '/' :
+    return 2;
+    default :assert(0);
+  }
+}
+
+static int find_main_op(int p , int q){
+  int op = -1;
+  int l_priority = 3;
+  int depth = 0;
+
+  for(int i = p; i < q; i++){
+    if(tokens[p].type == '('){
+      depth++;
+    }
+
+    else if(tokens[p].type == ')'){
+      depth--;
+    }
+
+    else if(depth == 0){
+      int priority = get_priority(tokens[p].type);
+      if(l_priority <= priority){
+        op = i;
+      }
+    }
+  } 
+  return op;
+}
+static word_t eval(int p , int q){ //计算表达式的值，p->开始的token，q->结束的token
   if(p > q) {
     printf("This is wrong!");
     assert(0);
     return 0;
   }
 
-  else if(p == q){
+  else if(p == q){ 
     assert(tokens[p].type == TK_INT);
     return strtoul(tokens[p].str, NULL, 0);
   }
 
-  else if (check_parentthese(p , q) == true ){
+  else if(check_parentthese(p , q) == true ){ //去除表达式中的括号
     return eval(p + 1 , q - 1);
   } 
 
   else {
-    assert(0);
+    int op = find_main_op(p , q);
+    word_t val1 = eval(p , op - 1);
+    word_t val2 = eval(op + 1 , q);
+
+    switch(tokens[op].type){  
+      case '+': return val1 + val2;
+      case '-': return val1 - val2;
+      case '*': return val1 * val2;
+      case '/': return val1 / val2;
+      default: assert(0);
+    }
   }
 }
 
