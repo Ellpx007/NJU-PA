@@ -145,6 +145,7 @@ static __attribute__((unused)) word_t eval(int p , int q){
   }
 
   else if(p == q){
+    printf("DEBUG: tokens[%d].str = \"%s\"\n", p, tokens[p].str);
     assert(tokens[p].type == TK_INT);
     return strtoul(tokens[p].str, NULL, 0);
   }
