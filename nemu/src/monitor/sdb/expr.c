@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_INT
+  TK_NOTYPE = 256, TK_EQ, TK_INT, TK_NEG
 
   /* TODO: Add more token types */
 
@@ -164,9 +164,14 @@ static int get_priority(int type){
     case '+' :
     case '-' :
     return 1;
+
     case '*' :
     case '/' :
     return 2;
+
+    case TK_NEG :
+    return 3;
+
     default :
     //printf("Unexpected token type in get_priority: %d\n", type);
     return -1;
@@ -189,10 +194,13 @@ static int find_main_op(int p , int q){
 
     else if(depth == 0){
       int priority = get_priority(tokens[i].type);
-      if(priority == -1){
+      bool is_neg = (tokens[i].type == TK_NEG);
+
+      if(priority == -1){ 
         continue;
       }
-      if(priority <= l_priority){
+     
+      if(priority < l_priority || (priority == l_priority && !is_neg)){
         l_priority = priority;
         op = i;
       }
@@ -219,6 +227,12 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
   else {
     int op = find_main_op(p , q);
     assert(op != -1);
+
+    if(tokens[op].type == TK_NEG){
+      word_t val = eval(op + 1 ,q);
+      return -val;
+    }
+    
     word_t val1 = eval(p , op - 1);
     word_t val2 = eval(op + 1 , q);
 
