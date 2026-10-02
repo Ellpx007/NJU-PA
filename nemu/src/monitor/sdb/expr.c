@@ -109,7 +109,14 @@ static bool make_token(char *e) {
               nr_token++;
               break;}
           case '+': tokens[nr_token].type = '+'; nr_token++; break;
-          case '-': tokens[nr_token].type = '-'; nr_token++; break;
+          case '-': {
+            if(i == 0 || (tokens[i-1].type == ('+' || '-' || '*' || '/'))){
+              tokens[nr_token].type = TK_NEG; nr_token++; break;
+            }
+            else {
+            tokens[nr_token].type = '-'; nr_token++; break;
+            }
+          }
           case '*': tokens[nr_token].type = '*'; nr_token++; break;
           case '/': tokens[nr_token].type = '/'; nr_token++; break;
           case '(': tokens[nr_token].type = '('; nr_token++; break;
