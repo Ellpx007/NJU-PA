@@ -146,9 +146,7 @@ static __attribute__((unused)) word_t eval(int p , int q){
 
   else if(p == q){
     assert(tokens[p].type == TK_INT);
-    uint32_t ret;
-    ret = strtoul(tokens[p].str, NULL, 0);
-    return ret; 
+    return strtoul(tokens[p].str, NULL, 0);
   }
 
   else {
