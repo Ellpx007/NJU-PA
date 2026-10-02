@@ -151,10 +151,11 @@ static __attribute__((unused)) word_t eval(int p , int q){
     else printf("bad expersion");
     
 } 
- 
 }
 
-
+static __attribute__((unused)) bool check_parentthese(int p , int q){
+  return 0;
+}
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
