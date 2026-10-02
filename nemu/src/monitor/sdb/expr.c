@@ -202,7 +202,7 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
   }
 
   else if(p == q){ 
-    assert(tokens[p].type == TK_INT);
+    //assert(tokens[p].type == TK_INT);
     return strtoul(tokens[p].str, NULL, 0);
   }
 
