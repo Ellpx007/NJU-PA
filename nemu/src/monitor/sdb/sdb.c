@@ -197,5 +197,9 @@ void init_sdb() {
   //expr("(1 * 2/ 100) + 2 - 1", &success);
 
   /* Initialize the watchpoint pool. */
+  bool success = true;
+  word_t res = expr("42", &success);
+  printf("expr(\"42\") = %u, success = %d\n", res, success);
+
   init_wp_pool();
 }

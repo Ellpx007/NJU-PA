@@ -140,22 +140,32 @@ static bool make_token(char *e) {
 static __attribute__((unused)) word_t eval(int p , int q){
   if(p > q) {
     printf("This is wrong!");
+    assert(0);
+    return 0;
   }
+
   else if(p == q){
     if(tokens[p].type == TK_INT){
     uint32_t ret;
     ret = strtoul(tokens[p].str, NULL, 10);
     return ret; 
     }
-
-    else printf("bad expersion");
+  }
+  else {
+    assert(0);
+  }
+/*
+  else if (check_parentthese(p , q) == true ){
     
-} 
+    return eval(p + 1 , q - 1);
+  } 
+*/
 }
 
 static __attribute__((unused)) bool check_parentthese(int p , int q){
   return 0;
 }
+
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
@@ -165,4 +175,4 @@ word_t expr(char *e, bool *success) {
   //TODO();
 
   return 0;
-}
+} 
