@@ -167,7 +167,9 @@ static int get_priority(int type){
     case '*' :
     case '/' :
     return 2;
-    default :assert(0);
+    default :
+    printf("Unexpected token type in get_priority: %d\n", type);
+    assert(0);
   }
 }
 
@@ -221,7 +223,8 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
       case '-': return val1 - val2;
       case '*': return val1 * val2;
       case '/': return val1 / val2;
-      default: assert(0);
+      default: 
+      assert(0);
     }
   }
 }
