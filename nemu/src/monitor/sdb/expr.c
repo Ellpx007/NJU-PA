@@ -145,12 +145,12 @@ static __attribute__((unused)) word_t eval(int p , int q){
   }
 
   else if(p == q){
-    if(tokens[p].type == TK_INT){
+    assert(tokens[p].type == TK_INT);
     uint32_t ret;
-    ret = strtoul(tokens[p].str, NULL, 10);
+    ret = strtoul(tokens[p].str, NULL, 0);
     return ret; 
-    }
   }
+
   else {
     assert(0);
   }
