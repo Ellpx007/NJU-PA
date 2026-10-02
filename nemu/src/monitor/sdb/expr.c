@@ -192,7 +192,7 @@ static int find_main_op(int p , int q){
       if(priority == -1){
         continue;
       }
-      if(l_priority <= priority){
+      if(priority <= l_priority){
         op = i;
       }
     }
