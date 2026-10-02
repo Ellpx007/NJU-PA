@@ -177,16 +177,16 @@ static int find_main_op(int p , int q){
   int depth = 0;
 
   for(int i = p; i < q; i++){
-    if(tokens[p].type == '('){
+    if(tokens[i].type == '('){
       depth++;
     }
 
-    else if(tokens[p].type == ')'){
+    else if(tokens[i].type == ')'){
       depth--;
     }
 
     else if(depth == 0){
-      int priority = get_priority(tokens[p].type);
+      int priority = get_priority(tokens[i].type);
       if(l_priority <= priority){
         op = i;
       }
