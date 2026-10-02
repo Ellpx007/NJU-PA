@@ -139,7 +139,7 @@ static bool make_token(char *e) {
 }
 
 static bool check_parentthese(int p , int q){
-  if(tokens[p].type != '(' || tokens[q - 1].type != ')'){
+  if(tokens[p].type != '(' || tokens[q].type != ')'){
     return false;
   }
   int depth = 0;
