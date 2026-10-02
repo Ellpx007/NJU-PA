@@ -168,7 +168,7 @@ static int get_priority(int type){
     case '/' :
     return 2;
     default :
-    printf("Unexpected token type in get_priority: %d\n", type);
+    //printf("Unexpected token type in get_priority: %d\n", type);
     return -1;
   }
 }
