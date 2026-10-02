@@ -109,14 +109,7 @@ static bool make_token(char *e) {
               nr_token++;
               break;}
           case '+': tokens[nr_token].type = '+'; nr_token++; break;
-          case '-': {
-            if(i == 0 || (tokens[i-1].type == ('+' || '-' || '*' || '/'))){
-              tokens[nr_token].type = TK_NEG; nr_token++; break;
-            }
-            else {
-            tokens[nr_token].type = '-'; nr_token++; break;
-            }
-          }
+          case '-': tokens[nr_token].type = '-'; nr_token++; break;
           case '*': tokens[nr_token].type = '*'; nr_token++; break;
           case '/': tokens[nr_token].type = '/'; nr_token++; break;
           case '(': tokens[nr_token].type = '('; nr_token++; break;
@@ -180,7 +173,7 @@ static int get_priority(int type){
     return 3;
 
     default :
-    printf("Unexpected token type in get_priority: %d\n", type);
+    //printf("Unexpected token type in get_priority: %d\n", type);
     return -1;
   }
 }
@@ -236,8 +229,8 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
     assert(op != -1);
 
     if(tokens[op].type == TK_NEG){
-      word_t val = eval(op + 1 ,q);
-      return -val;
+      word_t val3 = eval(op + 1 ,q);
+      return -val3;
     }
 
     word_t val1 = eval(p , op - 1);
@@ -261,6 +254,12 @@ word_t expr(char *e, bool *success) {
   }
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
-
+  for(int i = 0; i < nr_token; i++){
+    if(tokens[i].type == '-'){
+      if(i == 0 || (tokens[i-1].type != TK_INT && tokens[i-1].type != ')')){
+        tokens[i].type = TK_NEG;
+      }
+    }
+  }
   return eval(0, nr_token - 1);
 } 
