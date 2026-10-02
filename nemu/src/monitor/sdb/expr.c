@@ -180,7 +180,7 @@ static int get_priority(int type){
     return 3;
 
     default :
-    //printf("Unexpected token type in get_priority: %d\n", type);
+    printf("Unexpected token type in get_priority: %d\n", type);
     return -1;
   }
 }
