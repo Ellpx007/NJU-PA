@@ -180,7 +180,7 @@ static int get_priority(int type){
 
 static int find_main_op(int p , int q){
   int op = -1;
-  int l_priority = 3;
+  int l_priority = 5;
   int depth = 0;
 
   for(int i = p; i < q; i++){
@@ -232,7 +232,7 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
       word_t val = eval(op + 1 ,q);
       return -val;
     }
-    
+
     word_t val1 = eval(p , op - 1);
     word_t val2 = eval(op + 1 , q);
 
