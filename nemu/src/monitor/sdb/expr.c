@@ -43,7 +43,7 @@ static struct rule {
   {"==", TK_EQ},        // equal
   {"\\+", '+'},         // plus
   {"-" , '-'},          // sub
-  {"[0-9]+", TK_INT}
+  {"[0-9]+", TK_INT}    // int
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -101,7 +101,7 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
-          case TK_EQ: break;
+          case TK_EQ:  tokens[nr_token].type = TK_EQ ; nr_token++; break;
           case TK_INT: {
               tokens[nr_token].type = TK_INT ; 
               strncpy(tokens[nr_token].str, e + position - substr_len , substr_len);
@@ -137,15 +137,31 @@ static bool make_token(char *e) {
 
   return true;
 }
+static __attribute__((unused)) word_t eval(int p , int q){
+  if(p > q) {
+    printf("This is wrong!");
+  }
+  else if(p == q){
+    if(tokens[p].type == TK_INT){
+    uint32_t ret;
+    ret = strtoul(tokens[p].str, NULL, 10);
+    return ret; 
+    }
+
+    else printf("bad expersion");
+    
+} 
+ 
+}
+
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  //TODO();
 
   return 0;
 }
