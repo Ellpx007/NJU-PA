@@ -189,6 +189,9 @@ static int find_main_op(int p , int q){
 
     else if(depth == 0){
       int priority = get_priority(tokens[i].type);
+      if(priority == -1){
+        continue;
+      }
       if(l_priority <= priority){
         op = i;
       }
