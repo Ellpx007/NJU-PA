@@ -137,28 +137,6 @@ static bool make_token(char *e) {
 
   return true;
 }
-static __attribute__((unused)) word_t eval(int p , int q){
-  if(p > q) {
-    printf("This is wrong!");
-    assert(0);
-    return 0;
-  }
-
-  else if(p == q){
-    assert(tokens[p].type == TK_INT);
-    return strtoul(tokens[p].str, NULL, 0);
-  }
-
-  else {
-    assert(0);
-  }
-/*
-  else if (check_parentthese(p , q) == true ){
-    
-    return eval(p + 1 , q - 1);
-  } 
-*/
-}
 
 static __attribute__((unused)) bool check_parentthese(int p , int q){
   if(tokens[p].type != '(' || tokens[q - 1].type != ')'){
@@ -179,6 +157,27 @@ static __attribute__((unused)) bool check_parentthese(int p , int q){
   }
 
   return depth == 1;
+}
+
+static __attribute__((unused)) word_t eval(int p , int q){
+  if(p > q) {
+    printf("This is wrong!");
+    assert(0);
+    return 0;
+  }
+
+  else if(p == q){
+    assert(tokens[p].type == TK_INT);
+    return strtoul(tokens[p].str, NULL, 0);
+  }
+
+  else if (check_parentthese(p , q) == true ){
+    return eval(p + 1 , q - 1);
+  } 
+
+  else {
+    assert(0);
+  }
 }
 
 word_t expr(char *e, bool *success) {
