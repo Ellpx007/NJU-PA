@@ -31,8 +31,67 @@ static char *code_format =
 "  return 0; "
 "}";
 
+static int buf_idx = 0; //记录当前写入buf的位置
+static inline void gen_char(char c){
+  if(buf_idx < sizeof(buf) - 1) {
+    buf[buf_idx++] = c;
+    buf[buf_idx] = '\0';
+  }
+}
+
+static inline uint32_t choose(uint32_t n) {
+  return rand() % n;
+}
+
+static inline void gen_num(){
+  uint32_t val = choose(100) + 1;
+  buf_idx += sprintf(buf + buf_idx, "%uu", val);
+}
+ 
+static inline void gen_rand_op(){
+  static const char ops[] = {'+', '-', '*', '/'};
+  gen_char(ops[choose(4)]);
+}
+
+static inline void gen_rand_space(){
+  if(choose(2)){
+    gen_char(' ');
+  }
+}
+
+static void gen_rand_expr_internal(int depth){
+  if(depth > 5){
+    gen_num();
+    return;
+  }
+
+  switch(choose(5)){
+    case 0:
+      gen_rand_space();
+      gen_num();
+      gen_rand_space();
+      break;
+    
+    case 1:
+      gen_rand_space();
+      gen_char('(');
+      gen_rand_expr_internal(depth + 1);
+      gen_rand_space();
+      gen_char( ')');
+      gen_rand_space();
+      break;
+
+    default:
+    gen_rand_expr_internal(depth + 1);
+    gen_rand_space();
+    gen_rand_op();
+    gen_rand_expr_internal(depth + 1);
+  }
+}
 static void gen_rand_expr() {
+  buf_idx = 0;
   buf[0] = '\0';
+  gen_rand_expr_internal(0); 
 }
 
 int main(int argc, char *argv[]) {
@@ -53,7 +112,8 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    //int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    int ret = system("gcc -Werror=div-by-zero /tmp/.code.c -o /tmp/.expr 2>/dev/null");
     if (ret != 0) continue;
 
     fp = popen("/tmp/.expr", "r");

@@ -43,7 +43,7 @@ static struct rule {
   {"==", TK_EQ},        // equal
   {"\\+", '+'},         // plus
   {"-" , '-'},          // sub
-  {"[0-9]+", TK_INT}    // int
+  {"[0-9]+[uU]?", TK_INT}    // int
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -72,7 +72,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[256] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -261,5 +261,6 @@ word_t expr(char *e, bool *success) {
       }
     }
   }
+  *success = true;
   return eval(0, nr_token - 1);
 } 
