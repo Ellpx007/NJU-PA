@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_INT, TK_NEG
+  TK_NOTYPE = 256, TK_EQ, TK_INT, TK_NEG, TK_HEX ,TK_REG, TK_NEQ, TK_AND, TK_UNREF
 
   /* TODO: Add more token types */
 
@@ -35,14 +35,18 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-  {" +", TK_NOTYPE},    // spaces
-  {"\\(" , '('},
-  {"\\)" , ')'},
-  {"\\*" , '*'},        // mul
-  {"/" , '/'},          // div
-  {"==", TK_EQ},        // equal
-  {"\\+", '+'},         // plus
-  {"-" , '-'},          // sub
+  {" +", TK_NOTYPE},         // spaces
+  {"\\(" , '('},             // (
+  {"\\)" , ')'},             // )
+  {"\\*" , '*'},             // mul
+  {"/" , '/'},               // div
+  {"==", TK_EQ},             // equal
+  {"!=", TK_NEG},            // not equal 
+  {"&&", TK_AND},            // &&
+  {"\\+", '+'},              // plus
+  {"-" , '-'},               // sub
+  {"$", TK_REG},             // reg
+  {"0x", TK_HEX},            // hex
   {"[0-9]+[uU]?", TK_INT}    // int
 };
 
@@ -229,7 +233,7 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
     assert(op != -1);
 
     if(tokens[op].type == TK_NEG){
-      word_t val3 = eval(op + 1 ,q);
+      word_t val3 = eval(op + 1 ,q);//负数的符号作为op时，左为空，只需考虑右
       return -val3;
     }
 
@@ -254,7 +258,7 @@ word_t expr(char *e, bool *success) {
   }
   /* TODO: Insert codes to evaluate the expression. */
   //TODO();
-  for(int i = 0; i < nr_token; i++){
+  for(int i = 0; i < nr_token; i++){ //判断负数
     if(tokens[i].type == '-'){
       if(i == 0 || (tokens[i-1].type != TK_INT && tokens[i-1].type != ')')){
         tokens[i].type = TK_NEG;

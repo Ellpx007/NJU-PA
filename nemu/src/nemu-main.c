@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 #else
   init_monitor(argc, argv);
 #endif
-
+/*  //测试求解表达式功能
   FILE *fp = fopen("tools/gen-expr/input", "r");
   assert(fp != NULL);
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   fclose(fp);
   printf("\033[1;32m[PASS]\033[0m All test cases passed successfully!\n");
   return 0; // 测试通过直接退出，不需要进入 NEMU 交互终端
-
+*/
   /* Start engine. */
   engine_start();
 
