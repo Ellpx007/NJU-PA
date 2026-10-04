@@ -14,14 +14,14 @@
 ***************************************************************************************/
 
 #include <isa.h>
-
+#include <memory/vaddr.h>
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_INT, TK_NEG, TK_HEX ,TK_REG, TK_NEQ, TK_AND, TK_UNREF
+  TK_NOTYPE = 256, TK_EQ, TK_INT, TK_NEG, TK_HEX ,TK_REG, TK_NEQ, TK_AND, TK_DEREF
 
   /* TODO: Add more token types */
 
@@ -35,18 +35,18 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-  {" +", TK_NOTYPE},         // spaces
-  {"\\(" , '('},             // (
-  {"\\)" , ')'},             // )
-  {"\\*" , '*'},             // mul
-  {"/" , '/'},               // div
-  {"==", TK_EQ},             // equal
-  {"!=", TK_NEG},            // not equal 
-  {"&&", TK_AND},            // &&
-  {"\\+", '+'},              // plus
-  {"-" , '-'},               // sub
-  {"$", TK_REG},             // reg
-  {"0x", TK_HEX},            // hex
+  {" +", TK_NOTYPE},   // spaces
+  {"\\(" , '('},       // (
+  {"\\)" , ')'},       // )
+  {"\\*" , '*'},       // mul
+  {"/" , '/'},         // div
+  {"==", TK_EQ},       // equal
+  {"!=", TK_NEG},      // not equal 
+  {"&&", TK_AND},      // &&
+  {"\\+", '+'},        // plus
+  {"-" , '-'},         // sub
+  {"\\$[a-zA-Z0-9]+", TK_REG},       // reg
+  {"0[xX][0-9a-fA-F]+", TK_HEX}, // hex
   {"[0-9]+[uU]?", TK_INT}    // int
 };
 
@@ -105,19 +105,33 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
-          case TK_EQ:  tokens[nr_token].type = TK_EQ ; nr_token++; break;
-          case TK_INT: {
-              tokens[nr_token].type = TK_INT ; 
+          case TK_HEX: {
+              tokens[nr_token].type = TK_HEX;
               strncpy(tokens[nr_token].str, e + position - substr_len , substr_len);
               tokens[nr_token].str[substr_len] = '\0';
               nr_token++;
               break;}
-          case '+': tokens[nr_token].type = '+'; nr_token++; break;
-          case '-': tokens[nr_token].type = '-'; nr_token++; break;
-          case '*': tokens[nr_token].type = '*'; nr_token++; break;
-          case '/': tokens[nr_token].type = '/'; nr_token++; break;
-          case '(': tokens[nr_token].type = '('; nr_token++; break;
-          case ')': tokens[nr_token].type = ')'; nr_token++; break;
+          case TK_INT: {
+              tokens[nr_token].type = TK_INT; 
+              strncpy(tokens[nr_token].str, e + position - substr_len , substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+              break;}
+          case TK_REG: {
+              tokens[nr_token].type = TK_REG; 
+              strncpy(tokens[nr_token].str, e + position - substr_len , substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
+              break;}
+          case '(':    tokens[nr_token].type = '('; nr_token++; break;
+          case ')':    tokens[nr_token].type = ')'; nr_token++; break;
+          case '+':    tokens[nr_token].type = '+'; nr_token++; break;
+          case '-':    tokens[nr_token].type = '-'; nr_token++; break;
+          case '*':    tokens[nr_token].type = '*'; nr_token++; break;
+          case '/':    tokens[nr_token].type = '/'; nr_token++; break;
+          case TK_EQ:  tokens[nr_token].type = TK_EQ  ; nr_token++; break;
+          case TK_NEQ: tokens[nr_token].type = TK_NEQ ; nr_token++; break;
+          case TK_AND: tokens[nr_token].type = TK_AND ; nr_token++; break;
 
           default: TODO();
         }
@@ -165,16 +179,24 @@ static bool check_parentthese(int p , int q){ //去除括号
 
 static int get_priority(int type){
   switch(type){
+    case TK_AND:
+    return 1;
+
+    case TK_EQ:
+    case TK_NEQ:
+    return 2;
+
     case '+' :
     case '-' :
-    return 1;
+    return 3;
 
     case '*' :
     case '/' :
-    return 2;
+    return 4;
 
     case TK_NEG :
-    return 3;
+    case TK_DEREF:
+    return 5;
 
     default :
     //printf("Unexpected token type in get_priority: %d\n", type);
@@ -184,7 +206,7 @@ static int get_priority(int type){
 
 static int find_main_op(int p , int q){
   int op = -1;
-  int l_priority = 5;
+  int l_priority = 10;
   int depth = 0;
 
   for(int i = p; i < q; i++){
@@ -220,8 +242,23 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
   }
 
   else if(p == q){ 
-    assert(tokens[p].type == TK_INT);
-    return strtoul(tokens[p].str, NULL, 0);
+    switch (tokens[p].type){
+      case TK_INT:
+      return strtoul(tokens[p].str, NULL, 0);
+      case TK_HEX:
+      return strtoul(tokens[p].str, NULL, 16);
+      case TK_REG: {
+        bool reg_success = false;
+        word_t val = isa_reg_str2val(tokens[p].str + 1, &reg_success);
+        if(!reg_success){
+          printf("未知寄存器: %s\n", tokens[p].str);
+          assert(0);
+        }
+        return val;
+      }
+      default: 
+      assert(0);
+    }
   }
 
   else if(check_parentthese(p , q) == true ){ //去除表达式中的括号
@@ -232,9 +269,13 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
     int op = find_main_op(p , q);
     assert(op != -1);
 
-    if(tokens[op].type == TK_NEG){
-      word_t val3 = eval(op + 1 ,q);//负数的符号作为op时，左为空，只需考虑右
-      return -val3;
+    if(tokens[op].type == TK_NEG || tokens[op].type == TK_DEREF){ //负数，解引用作为op时，左为空，只需考虑右
+      word_t val3 = eval(op + 1 ,q);
+      if(tokens[op].type == TK_DEREF){
+        return vaddr_read(val3, 4);
+      }else {
+        return -val3;
+      }
     }
 
     word_t val1 = eval(p , op - 1);
@@ -245,10 +286,20 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
       case '-': return val1 - val2;
       case '*': return val1 * val2;
       case '/': return val1 / val2;
+      case TK_EQ : return val1 == val2;
+      case TK_NEG: return val1 != val2;
+      case TK_AND: return val1 && val2;
       default: 
       assert(0);
     }
   }
+}
+
+static bool is_op(int type){
+  return (type == '+' || type == '-' || type == '*' || 
+          type == '/' || type == TK_AND || type == TK_EQ || 
+          type == TK_NEQ || type == TK_DEREF || type == TK_NEG ||
+          type == '(' );
 }
 
 word_t expr(char *e, bool *success) {
@@ -260,8 +311,13 @@ word_t expr(char *e, bool *success) {
   //TODO();
   for(int i = 0; i < nr_token; i++){ //判断负数
     if(tokens[i].type == '-'){
-      if(i == 0 || (tokens[i-1].type != TK_INT && tokens[i-1].type != ')')){
+      if(i == 0 || (is_op(tokens[i - 1].type))){
         tokens[i].type = TK_NEG;
+      }
+    }
+    if(tokens[i].type == '*'){
+      if(i == 0 || (is_op(tokens[i - 1].type))){
+        tokens[i].type = TK_DEREF;
       }
     }
   }

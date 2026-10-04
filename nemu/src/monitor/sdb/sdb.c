@@ -55,6 +55,21 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_p(char *args) {
+   if(args == NULL){
+    printf("用法: p EXPR \n");
+    return 0;
+  }
+  bool success = false;
+  word_t val = expr(args, &success);
+  if(success){
+    printf("%u (0x%08x)\n", val, val);
+  } else {
+    printf("表达式求值失败: \"%s\"\n", args);
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static int cmd_si(char *args){
@@ -116,7 +131,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si" , "Execute n instructions", cmd_si},
   { "info", "Print Regester", cmd_info},
-  { "x","scan Memory", cmd_x},
+  { "x", "scan Memory", cmd_x},
+  { "p", "expresion evaluation", cmd_p}
   /* TODO: Add more commands */
 
 };
@@ -193,15 +209,14 @@ void init_sdb() {
   init_regex();
 
   /*测试正则表达式解析
-  bool success = true;
-  expr("(1 * 2/ 100) + 2 - 1", &success);
-  bool success = true;
-  word_t res = expr("1 + -1", &success);
-  printf("expr(\"42\") = %u, success = %d\n", res, success);
+  //bool success = true;
+  //expr("(1 * 2/ 100) + 2 - 1", &success);
+  //bool success = true;
+  //word_t res = expr("1 + -1", &success);
+  //printf("expr(\"42\") = %u, success = %d\n", res, success);
   */
-
   /* Initialize the watchpoint pool. */
-
+  
 
   init_wp_pool();
 }
