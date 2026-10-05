@@ -18,6 +18,18 @@
 
 #include <common.h>
 
-word_t expr(char *e, bool *success);
+typedef struct watchpoint {
+  int NO;
+  struct watchpoint *next;
+  char expr[128];
+  word_t old_val;
+} WP;
 
+void init_wp_pool();
+WP* add_watchpoint(char *e, word_t val);
+bool delete_watchpoint(int no);
+void print_watchpoints();
+bool check_watchpoints();
+
+word_t expr(char *e, bool *success);
 #endif

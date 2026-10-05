@@ -49,6 +49,36 @@ static int cmd_c(char *args) {
   return 0;
 }
 
+static int cmd_w(char *args){
+  if(args == NULL){
+    printf("用法: w EXPR\n");
+    return 0;
+  }
+
+  bool success = false;
+  word_t val = expr(args, &success);
+  if(!success){
+    printf("表达式求值失败，无法设置监视点: \"%s\"\n", args);
+    return 0;
+  }
+  WP *wp = add_watchpoint(args, val);
+  printf("设置监视点 %d: %s = %u (0x%08x)\n", wp->NO, wp->expr, val, val);
+  return 0;
+}
+
+static int cmd_d(char *args){
+  if(args == NULL){
+    printf("用法: d N (N 为监视点编号)\n");
+    return 0;
+  }
+  int no = atoi(args);
+  if(delete_watchpoint(no)){
+    printf("已删除监视点 %d\n", no);
+  } else {
+    printf("未找到编号为 %d 的监视点\n", no);
+  }
+  return 0;
+}
 
 static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
@@ -94,10 +124,8 @@ static int cmd_info(char *args){
    if(subcmd == 'r')
    {isa_reg_display();}
    else if(subcmd == 'w')
-   {}
-   else
-  {return 0;}
-
+   {print_watchpoints();}
+  
    return 0;
 }
 
@@ -132,7 +160,9 @@ static struct {
   { "si" , "Execute n instructions", cmd_si},
   { "info", "Print Regester", cmd_info},
   { "x", "scan Memory", cmd_x},
-  { "p", "expresion evaluation", cmd_p}
+  { "p", "expresion evaluation", cmd_p},
+  { "w", "add a watchpoint", cmd_w},
+  { "d", "delete a watchpoint", cmd_d},
   /* TODO: Add more commands */
 
 };

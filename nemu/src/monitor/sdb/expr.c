@@ -41,7 +41,7 @@ static struct rule {
   {"\\*" , '*'},       // mul
   {"/" , '/'},         // div
   {"==", TK_EQ},       // equal
-  {"!=", TK_NEG},      // not equal 
+  {"!=", TK_NEQ},      // not equal 
   {"&&", TK_AND},      // &&
   {"\\+", '+'},        // plus
   {"-" , '-'},         // sub
@@ -287,7 +287,7 @@ static word_t eval(int p , int q){ //计算表达式的值，p->开始的token�
       case '*': return val1 * val2;
       case '/': return val1 / val2;
       case TK_EQ : return val1 == val2;
-      case TK_NEG: return val1 != val2;
+      case TK_NEQ: return val1 != val2;
       case TK_AND: return val1 && val2;
       default: 
       assert(0);
